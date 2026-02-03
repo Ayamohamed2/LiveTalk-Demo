@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groups - WhatsApp Chat</title>
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/groups_additional_styles.css">
+    <style>
+        /* ⭐ Voice Recording Indicator Styles */
+        .voice-recording-indicator {
+            display: none;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 20px;
+            background: #1A2233;
+            border-radius: 30px;
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .recording-animation {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dc3545;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+        }
+
+        .voice-recording-indicator span {
+            flex: 1;
+            color: #e9edef;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .cancel-record-btn,
+        .send-record-btn {
+            background: #1E2A3A;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .cancel-record-btn:hover {
+            background: #dc3545;
+        }
+
+        .send-record-btn {
+            background: #5B9BD5;
+        }
+
+        .send-record-btn:hover {
+            background: #3A7BBD;
+        }
+
+        /* Voice Message Container */
+        .voice-message-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            min-width: 200px;
+        }
+
+        .voice-play-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #5B9BD5;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .voice-play-btn:hover {
+            background: #3A7BBD;
+            transform: scale(1.05);
+        }
+
+        .voice-duration {
+            color: #e9edef;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Voice Record Button */
+        .voice-record-btn {
+            background: #5B9BD5;
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .voice-record-btn:hover {
+            background: #3A7BBD;
+            transform: scale(1.05);
+        }
+
+        .voice-record-btn:active {
+            background: #2E6FA8;
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Groups</h2>
+                <div class="sidebar-actions">
+                    <button id="backToChats" class="icon-btn" title="Back to Chats">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                        </svg>
+                    </button>
+                    <button id="createGroupBtn" class="icon-btn" title="Create Group">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </button>
+                    <button id="joinGroupBtn" class="icon-btn" title="Join Group">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                    </button>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchGroups" placeholder="Search groups...">
+            </div>
+
+            <div class="users-list" id="groupsList">
+                <!-- Groups will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="main-chat">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-screen">
+                <svg width="120" height="120" viewBox="0 0 24 24" fill="none" style="margin-bottom: 20px;">
+                    <circle cx="12" cy="12" r="10" stroke="#5B9BD5" stroke-width="1.5" opacity="0.3"/>
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="#5B9BD5"/>
+                </svg>
+                <h1>Welcome to Groups</h1>
+                <p>Select a group to start chatting or create a new one</p>
+            </div>
+
+            <!-- Chat Screen -->
+            <div id="chatScreen" class="chat-screen" style="display: none;">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <button id="backBtn" class="back-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                        </svg>
+                    </button>
+                    <div class="chat-header-info">
+                        <h3 id="chatGroupName">Group Name</h3>
+                        <p id="chatGroupMembers" class="user-status">0 members</p>
+                    </div>
+                    <div class="chat-actions">
+                        <button id="groupInfoBtn" class="call-btn" title="Group Info">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                            </svg>
+                        </button>
+                        <button id="viewMembersBtn" class="call-btn" title="View Members">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
+                        </button>
+                        <button id="addMembersBtn" class="call-btn" title="Add Members" style="display: none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        </button>
+                        <button id="leaveGroupBtn" class="call-btn" title="Leave Group">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </button>
+                        <button id="clearChatBtn" class="call-btn" title="Clear Chat">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Container -->
+                <div id="messagesContainer" class="messages-container">
+                    <!-- Messages will be loaded here -->
+                </div>
+
+                <!-- Typing Indicator -->
+                <div id="typingIndicator" class="typing-users" style="display: none;">
+                    <!-- Typing users will appear here -->
+                </div>
+
+                <!-- Reply Preview -->
+                <div id="replyPreview" class="message-reply-preview" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                        <div style="flex: 1; min-width: 0;">
+                            <strong id="replyToSender" style="color: #5B9BD5; font-size: 13px; display: block;"></strong>
+                            <p id="replyToText" style="margin: 4px 0 0 0; font-size: 13px; color: #8696a0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></p>
+                        </div>
+                        <button id="cancelReply" style="background: none; border: none; cursor: pointer; color: #8696a0; font-size: 24px; padding: 0; margin-left: 10px; line-height: 1;">×</button>
+                    </div>
+                </div>
+
+                <!-- Voice Recording Indicator -->
+                <div id="voiceRecordingIndicator" class="voice-recording-indicator">
+                    <div class="recording-animation"></div>
+                    <span id="recordingTime">0:00</span>
+                    <button id="cancelRecordBtn" class="cancel-record-btn">Cancel</button>
+                    <button id="sendRecordBtn" class="send-record-btn">Send</button>
+                </div>
+
+                <!-- Message Input Area -->
+                <div class="message-input-area">
+                    <button id="attachBtn" class="attach-btn" title="Attach">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/>
+                        </svg>
+                    </button>
+                    <input type="file" id="fileInput" style="display: none;" accept="image/*,video/*">
+                    
+                    <div class="attach-menu" id="attachMenu" style="display: none;">
+                        <button id="imageBtn" class="attach-option">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px; vertical-align: middle;">
+                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
+                            Image
+                        </button>
+                        <button id="videoBtn" class="attach-option">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px; vertical-align: middle;">
+                                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                            </svg>
+                            Video
+                        </button>
+                    </div>
+
+                    <input type="text" id="messageInput" placeholder="Type a message" class="message-input">
+                    <button id="voiceRecordBtn" class="voice-record-btn" title="Hold to record voice message">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+                        </svg>
+                    </button>
+                    <button id="sendBtn" class="send-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createGroupModal')">&times;</span>
+            <h2 style="margin-bottom: 20px; color: #e9edef;">Create New Group</h2>
+            <form id="createGroupForm">
+                <div class="form-group">
+                    <label>Group Name *</label>
+                    <input type="text" id="groupName" required placeholder="Enter group name">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="groupDescription" placeholder="Enter group description (optional)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Group Image</label>
+                    <input type="file" id="groupImage" accept="image/*">
+                </div>
+                <button type="submit" class="btn-primary">Create Group</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Join Group Modal -->
+    <div id="joinGroupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('joinGroupModal')">&times;</span>
+            <h2 style="margin-bottom: 20px; color: #e9edef;">Join Group</h2>
+            <form id="joinGroupForm">
+                <div class="form-group">
+                    <label>Join Code *</label>
+                    <input type="text" id="joinCode" required placeholder="Enter group join code">
+                </div>
+                <button type="submit" class="btn-primary">Join Group</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Group Info Modal -->
+    <div id="groupInfoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('groupInfoModal')">&times;</span>
+            <h2 style="margin-bottom: 20px; color: #e9edef;">Group Information</h2>
+            <div id="groupInfoContent">
+                <!-- Group info will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- View Members Modal -->
+    <div id="viewMembersModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('viewMembersModal')">&times;</span>
+            <h2 style="margin-bottom: 20px; color: #e9edef;">Group Members</h2>
+            <div id="membersListContent">
+                <!-- Members list will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Members Modal -->
+    <div id="addMembersModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addMembersModal')">&times;</span>
+            <h2 style="margin-bottom: 20px; color: #e9edef;">Add Members</h2>
+            <div class="search-box">
+                <input type="text" id="searchMembersToAdd" placeholder="Search users...">
+            </div>
+            <div id="usersToAddList" style="max-height: 400px; overflow-y: auto; margin: 15px 0;">
+                <!-- Users list will be loaded here -->
+            </div>
+            <button id="confirmAddMembers" class="btn-primary">Add Selected</button>
+        </div>
+    </div>
+
+    <!-- Who Read Modal -->
+    <div id="whoReadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('whoReadModal')">&times;</span>
+            <h2 style="margin-bottom: 20px; color: #e9edef;">Message Info</h2>
+            <div id="whoReadContent" style="max-height: 500px; overflow-y: auto;">
+                <!-- Read receipts will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="js/groups.js"></script>
+</body>
+</html>

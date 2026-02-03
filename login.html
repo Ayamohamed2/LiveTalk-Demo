@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Login</h2>
+
+    <input id="loginEmail" placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Password">
+
+    <button id="loginBtn">Login</button>
+
+    <button onclick="location.href='forgot-password.html'">
+        Forgot Password?
+    </button>
+
+    <hr>
+
+    <p>
+        Don't have an account?
+        <a href="index.html">Register</a>
+    </p>
+
+    <p id="msg"></p>
+</div>
+
+<script src="js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Welcome 👋</h2>
+    <p id="userInfo">Logged in!</p>
+
+    <div style="display: flex; gap: 10px; margin: 20px 0;">
+        <button onclick="window.location.href='profile.html'" style="flex: 1; padding: 12px; background: #5B9BD5; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s;">
+            👤 Profile Settings
+        </button>
+        <button onclick="window.location.href='chat.html'" style="flex: 1; padding: 12px; background: #5B9BD5; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s;">
+            💬 Open Chat
+        </button>
+    </div>
+
+    <h3>Change Password</h3>
+    <input id="currentPassword" type="password" placeholder="Current Password">
+    <input id="newPassword" type="password" placeholder="New Password">
+    <input id="confirmNewPassword" type="password" placeholder="Confirm New Password">
+    <button id="changeBtn">Change Password</button>
+
+    <hr>
+    <button id="logoutBtn">Logout</button>
+    <p id="msg"></p>
+</div>
+
+<script src="js/dashboard.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
